@@ -18,6 +18,7 @@ package adler32_mod
 
 import (
 	"sort"
+	"unicode/utf8"
 
 	"github.com/mikispag/rosettaflash/charset"
 )
@@ -37,7 +38,7 @@ func Checksum_allowed(checksum uint32, allowed_charset *charset.Charset) bool {
 }
 
 func S1_S2_allowed(S1, S2 int, allowed_charset *charset.Charset) bool {
-	return S_allowed(S1, allowed_charset) && S_allowed(S2, allowed_charset)
+	return S_allowed_UTF8(S2) && S_allowed(S1, allowed_charset)
 }
 
 func S_allowed(S int, allowed_charset *charset.Charset) bool {
@@ -52,6 +53,19 @@ func S_allowed(S int, allowed_charset *charset.Charset) bool {
 		return true
 	}
 	return false
+}
+
+func S_allowed_UTF8(S int) bool {
+	return S > 0xc080 && IsUTF8(S)
+}
+
+func IsUTF8(S int) bool {
+	firstByte := (S & 0xff00) >> 8
+	secondByte := S & 0xff
+
+	utf8Sequence := []byte{byte(firstByte), byte(secondByte)}
+
+	return utf8.Valid(utf8Sequence)
 }
 
 // Add p to the running checksum d.

@@ -47,10 +47,10 @@ func Get_appended_bytes(checksum uint32, allowed_charset *charset.Charset) []byt
 	// Now S1 has the minimum allowed value, add \x00 or a better byte till S2 is allowed
 	fmt.Println("Finding final bytes to append...")
 
-	for !adler32_mod.S_allowed(S2, allowed_charset) {
+	for !adler32_mod.S_allowed_UTF8(S2) {
 		byte_to_add = 0
 		for _, b := range (*allowed_charset).Combinations {
-			if 65521-S2+b < 255 && adler32_mod.S_allowed(S1+(65521-S2+b), allowed_charset) {
+			if 65521-S2+b < 255 && adler32_mod.S_allowed_UTF8(S1+(65521-S2+b)) {
 				// Add the correct byte
 				byte_to_add = byte(65521 - S2 + b)
 				fmt.Println("Found final byte!")
